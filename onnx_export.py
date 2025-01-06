@@ -8,7 +8,7 @@ from onnxexport.model_onnx_speaker_mix import SynthesizerTrn
 
 parser = argparse.ArgumentParser(description='SoVitsSvc OnnxExport')
 
-def OnnxExport(path=None):
+def OnnxExport(path="vec768l12_nsf-hifigan_50Epoch"):
     device = torch.device("cpu")
     hps = utils.get_hparams_from_file(f"checkpoints/{path}/config.json")
     SVCVITS = SynthesizerTrn(
