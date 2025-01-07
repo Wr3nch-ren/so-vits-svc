@@ -20,10 +20,6 @@
 
 <body>
 
-    <!--<audio id="patri">
-        <source src="voiceAudio/patri/006.wav" type="audio/wav">
-    </audio>-->
-
     <header class="p-3 mb-3 sticky-xl-top text-bg-light border-bottom">
         <div class="container">
             <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
@@ -31,7 +27,7 @@
                     <span class="fs-4">Voice Changer</span>
                 </a>
 
-                <div class="nav nav-pills">
+                <!-- <div class="nav nav-pills">
         
                     <li class="nav-link"><a href="#">
                         <img src="pic/en.png" alt="mdo" width="32" height="32" class="rounded-circle">
@@ -41,7 +37,7 @@
                         <img src="pic/th.png" alt="mdo" width="32" height="32" class="rounded-circle">
                     </a></li>
                     
-                </div>
+                </div> -->
             </div>
         </div>
     </header>
@@ -77,7 +73,8 @@
 
     <div class="container my-5">
         <div class="row p-4 pt-lg-5 align-items-center rounded-3 border shadow-lg">
-            <form action="">
+            <!--Program-->
+            <form class="hide" id="program-body" action="">
                 <div class="row">
                     <div class="ovc-work-body">
                         <!--setup 1: file or recording-->
@@ -101,16 +98,11 @@
                         <!--setup 2: start recording & preview-->
                         <section class="p-5 ovc-setup hide" id="vc-voice-record">
                             <div class="recording-body">
-                                <!--<p><b id="recordtime" class="ovc-recording-text">00:00</b></p>
-                                <div class="ovc-recording-line"></div>-->
                                 <div>
                                     <audio controls autoplay playsinline></audio>
                                 </div>
                                 <p><span>To ensure conversion quality, please record for more
                                     </span><span class="linght-font">than 10 seconds</span>!</p>
-                                <!--<button class="ovc-stop-recording-btn" id="btn-stop-recording" disabled>
-                                    <span>Stop Recording</span>
-                                </button>-->
                                 <button class="btn btn-dark" id="btn-stop-recording">Stop Recording</button>
                                 <button class="btn btn-light" id="btn-restart-recording" disabled>Retry Recording</button>
                             </div>
@@ -126,29 +118,24 @@
                         <button class="ovc-voice-select-btn">
                             <div class="voice-item-photo">
                                 <img src="pic/user.png" class="voice-photo" id="sel-voice-photo">
-                                <div class="voice-play-sel-button" id="" data-link="voiceAudio/patri/006.wav">
+                                <div class="voice-play-sel-button" id="" data-link="">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
                                         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
                                     </svg>
                                 </div>
-                                <div class="voice-pasue-sel-button">
+                                <div class="voice-pause-sel-button">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-pause-circle-fill" viewBox="0 0 16 16">
                                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.25 5C5.56 5 5 5.56 5 6.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5C7.5 5.56 6.94 5 6.25 5m3.5 0c-.69 0-1.25.56-1.25 1.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5C11 5.56 10.44 5 9.75 5"/>
                                 </svg>
                                 </div>
                             </div>
                             <div class="banner-model-list-item-text">
-                                <p><b id="sel-voice-name">Patri</b></p>
-                                <p><span>Female, 26 y/o</span></p>
+                                <p><b id="sel-voice-name">Not selected</b></p>
+                                <p><span id="sel-voice-description">Please select original AI Voice</span></p>
                             </div>
-                            <!--<div class="ovc-arrow">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
-                                </svg>
-                            </div>-->
                         </button>
 
-                        <div class="rounded ovc-setup overflow-auto">
+                        <div class="rounded ovc-setup overflow-auto" style="max-width: 500px; max-height: 250px;">
                             <section class="voice-item" data-id="patri" data-name="Patri">
                                 <div class="item-photo"><img src="pic/user.png">
                                 </div>
@@ -156,53 +143,77 @@
                                     <p><b>Patri</b></p>
                                     <p><span>Female, 26 y/o</span></p>
                                 </div>
-                                <button class="voice-play-button" id="voice-play-button" data-link="voiceAudio/patri/006.wav">
+                                <button type="button" class="voice-play-button" id="voice-play-button" data-link="voiceAudio/patri/006.wav">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
                                         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
                                     </svg>
                                 </button>
                             </section>
-                            <section class="voice-item" data-id="" data-name="">
+                            <section class="voice-item" data-id="ex02" data-name="ex02">
                                 <div class="item-photo"><img src="pic/user.png">
                                 </div>
                                 <div class="banner-model-list-item-text">
                                     <p><b>Example02</b></p>
                                     <p><span>N/A</span></p>
                                 </div>
-                                <button class="voice-play-button" id="voice-play-button" data-link="">
+                                <button type="button" class="voice-play-button" id="voice-play-button" data-link="voiceAudio/patri/011.wav">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
                                         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
                                     </svg>
                                 </button>
                             </section>
-                            <section class="voice-item" data-id="" data-name="">
+                            <section class="voice-item" data-id="ex03" data-name="ex03">
                                 <div class="item-photo"><img src="pic/user.png">
                                 </div>
                                 <div class="banner-model-list-item-text">
                                     <p><b>Example03</b></p>
                                     <p><span>N/A</span></p>
                                 </div>
-                                <button class="voice-play-button" id="voice-play-button" data-link="">
+                                <button type="button" class="voice-play-button" id="voice-play-button" data-link="voiceAudio/patri/017.wav">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
                                         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
                                     </svg>
                                 </button>
                             </section>
                         </div>
-                        <!--<div class="mb-3">
-                            <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
-                                <option selected="">Open this select menu</option>
-                                <option value="1"><img src="pic/user.png" alt="">One</option>
-                                <option value="2"><img src="pic/user.png" alt="">Two</option>
-                                <option value="3"><img src="pic/user.png" alt="">Three</option>
-                            </select>
-                        </div>-->
-                        <button type="submit" class="btn btn-dark">Convert</button>
-
-                        
+                        <button type="submit" class="rounded-pill btn btn-dark" id="btn-convert" style="width: 150px; height: 60px">Convert</button>
                     </div>
                 </div>
             </form>
+            
+            <!--Loading-->
+            <section class="p-5 ovc-work-body-no-outline hide" id="loader-body">
+                <div class="spinner-grow" style="width: 3rem; height: 3rem;" role="status"></div>
+                <h2>Loading...</h2>
+                <p>You're currently in line, so it might take some time.</p>
+            </section>
+            <!--Preview & Dowload-->
+            <section class="p-5 col-lg-7 p-3 p-lg-5 pt-lg-3 ovc-work-body-no-outline" id="download-body">
+                <!--<div>
+                    <audio controls autoplay playsinline></audio>
+                </div>
+                <button class="btn btn-dark" id="btn-download-audio">Download</button>-->
+                <div class="rounded ovc-setup border overflow-auto" style="max-width: 500px; max-height: 250px;">
+                    <section class="audio-item" >
+                        <div class="banner-model-list-item-text">
+                            <p><span>file.wav</span></p>
+                        </div>
+                    </section>
+                    <section class="audio-item" >
+                        <div class="banner-model-list-item-text">
+                            <p><span>file.wav</span></p>
+                        </div>
+                    </section>
+                    <section class="audio-item" >
+                        <div class="banner-model-list-item-text">
+                            <p><span>file.wav</span></p>
+                        </div>
+                    </section>
+                </div>
+                <div class="col-lg-7 p-3 p-lg-5 pt-lg-3 ovc-work-body-no-outline">
+                    <div class="wave-audio"></div>
+                </div>
+            </section>
         </div>
     </div>
 

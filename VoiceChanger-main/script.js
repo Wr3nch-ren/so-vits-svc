@@ -1,15 +1,68 @@
 
 $(document).ready(function(){
-    /*$("#vc-voice-record").hide();
-    $("#btn-start-recording").click(function(){
-        $("#vc-audio-input").hide();
-        $("#vc-voice-record").show();
-    });*/
     $("#btn-start-recording").click(function(){
         $("#vc-audio-input").addClass("hide");
         $("#vc-voice-record").removeClass("hide");
     });
+
+    $("#btn-convert").click(function(){
+        $("#program-body").addClass("hide");
+        $("#loader-body").removeClass("hide");
+    });
+
+    const audioPlayer = new Audio();
+    audioPlayer.style.display = 'none';
+
+    $(".voice-play-sel-button").click(function() {
+        event.preventDefault();
+        const audioLink = $(this).data('data-link');
+        console.log("Playing audio:", audioLink);
+        audioPlayer.src = audioLink;
+        audioPlayer.addEventListener('loadeddata', () => {
+            audioPlayer.play();
+
+            $('.voice-pause-sel-button').show();
+            $('.voice-play-sel-button').hide();
+        });
+        audioPlayer.addEventListener('ended', () => {
+            $('.voice-pause-sel-button').hide();
+            $('.voice-play-sel-button').show();
+        });
+        
+    });
+
+    $(".voice-pause-sel-button").click(function() {
+        event.preventDefault();
+        if (audioPlayer !== null && !audioPlayer.paused) {
+            audioPlayer.pause();
+            $('.voice-pause-sel-button').hide();
+            $('.voice-play-sel-button').show();
+        }
+    });
+
+
+
+    $('.voice-item').click(function(event) {
+        const selectedItem = $(this);
+        const dataLink = selectedItem.find('.voice-play-button').attr('data-link');
+        const voicePhoto = selectedItem.find('.item-photo img').attr('src');
+        const voiceName = selectedItem.find('.banner-model-list-item-text b').text();
+        const voiceDescription = selectedItem.find('.banner-model-list-item-text span').text();
+
+        $('.ovc-voice-select-btn .voice-play-sel-button').data('data-link', dataLink);
+        $('.ovc-voice-select-btn #sel-voice-photo').attr('src', voicePhoto);
+        $('.ovc-voice-select-btn #sel-voice-name').text(voiceName);
+        $('.ovc-voice-select-btn #sel-voice-description').text(voiceDescription);
+
+        /*if ($(event.target).hasClass('voice-play-button')) {
+            event.preventDefault();
+        }*/
+
+    });
+    
+
 });
+
 
 const btnVoicePlay = document.getElementsByClassName("voice-play-button");
 

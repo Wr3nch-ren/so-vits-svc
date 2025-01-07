@@ -325,7 +325,7 @@
 	padding: 4px;
 	width: 68px;
 	height: 68px;
-	background: url(../images/ic-pasue.svg) no-repeat center;
+	background: url(../images/ic-pause.svg) no-repeat center;
 }
 
 .vc-audio-review {
@@ -424,8 +424,8 @@
 	background-size: 32px 32px;
 }
 
-.vc-wave-play .pasue {
-	background: #EAEAEA url("../images/vcm-banner-pasue.svg") no-repeat center !important;
+.vc-wave-play .pause {
+	background: #EAEAEA url("../images/vcm-banner-pause.svg") no-repeat center !important;
 	background-size: 32px 32px !important;
 }
 
@@ -1437,7 +1437,7 @@
 	opacity: 1;
 }
 
-.voice-pasue-sel-button {
+.voice-pause-sel-button {
 	position: absolute;
 	top: 50px;
 	left: 80px;
@@ -1448,7 +1448,7 @@
 	display: none;
 }
 
-.voice-pasue-sel-button:hover {
+.voice-pause-sel-button:hover {
 	opacity: 1;
 }
 
@@ -1611,6 +1611,18 @@
 	opacity: 1;
 }
 
+.voice-pause-button {
+	border: 0;
+	background: none;
+	margin-right: 10px;
+	opacity: 0.6;
+	display: none;
+}
+
+.voice-pause-button:hover {
+	opacity: 1;
+}
+
 .voice-item {
 	display: flex;
 	align-items: center;
@@ -1620,6 +1632,18 @@
 }
 
 .voice-item:hover {
+	background: #cfebf0;
+}
+
+.audio-item {
+	display: flex;
+	align-items: center;
+	height: 90px;
+	width: 100%;
+	cursor: pointer;
+}
+
+.audio-item:hover {
 	background: #cfebf0;
 }
 
@@ -2221,7 +2245,7 @@
 	border-radius: 80px;
 }
 
-.listen-play-pasue {
+.listen-play-pause {
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -2238,7 +2262,7 @@
 	cursor: pointer;
 }
 
-.listen-pasue-button {
+.listen-pause-button {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -2253,7 +2277,7 @@
 	opacity: 1;
 }
 
-.listen-pasue-button:hover {
+.listen-pause-button:hover {
 	opacity: 1;
 }
 
