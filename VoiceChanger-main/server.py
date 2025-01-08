@@ -84,7 +84,7 @@ def main():
     # Create a socket object
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # Bind the socket to the address and port
-    server.bind(("127.0.0.1", 5000))
+    server.bind(("127.0.0.1", 3000)) # Port 3000: Live Preview, 5000: Live Server
     # Listen for connections
     server.listen(5)
     print("[*] Listening on port 5000")

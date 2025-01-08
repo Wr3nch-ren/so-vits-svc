@@ -9,7 +9,7 @@ $(document).ready(function(){
         $("#program-body").addClass("hide");
         $("#loader-body").removeClass("hide");
     });
-
+// Audio Playing Section
     const audioPlayer = new Audio();
     audioPlayer.style.display = 'none';
 
@@ -41,7 +41,7 @@ $(document).ready(function(){
     });
 
 
-
+// Voice Selection Section
     $('.voice-item').click(function(event) {
         const selectedItem = $(this);
         const dataLink = selectedItem.find('.voice-play-button').attr('data-link');
@@ -63,7 +63,7 @@ $(document).ready(function(){
 
 });
 
-
+// Voice Recording and Saving Section
 const btnVoicePlay = document.getElementsByClassName("voice-play-button");
 
 btnVoicePlay.onclick = function(){
@@ -408,7 +408,7 @@ function SaveToDisk(fileURL, fileName) {
         _window.close();
     }
 }
-
+// Multiple Audio File Selection
 function readMultipleFiles(input) {
     const previewContainer = document.getElementById('audioPreviews');
     previewContainer.innerHTML = ''; // Clear previous previews
@@ -437,29 +437,3 @@ function readMultipleFiles(input) {
         }
     }
 }
-
-/*function readURL(input) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-
-        reader.onload = function (e) {
-            $('#audioResult')
-                .attr('src', e.target.result);
-            $("#vc-audio-input").addClass("hide");
-            $("#vc-file-preview").removeClass("hide");
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-$(function () {
-    $('#upload').on('change', function () {
-        readURL(input);
-    });
-}); */
-
-/*var x = document.getElementById("patri");
-
-function playAudio() { 
-    x.play(); 
-}*/
