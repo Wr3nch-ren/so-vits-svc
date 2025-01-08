@@ -31,3 +31,4 @@ langdetect
 pyyaml
 pynvml
 faiss-cpu
+websockets

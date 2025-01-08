@@ -1,5 +1,21 @@
 
 $(document).ready(function(){
+const i = "PatriXXX";
+    document.getElementById('aaa').innerHTML += `
+                            <section class="voice-item" data-id="patri" data-name="Patri">
+                                <div class="item-photo"><img src="pic/user.png">
+                                </div>
+                                <div class="banner-model-list-item-text">
+                                    <p><b>${i}</b></p>
+                                    <p><span>Female, 26 y/o</span></p>
+                                </div>
+                                <button type="button" class="voice-play-button" id="voice-play-button" data-link="voiceAudio/patri/006.wav">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
+                                    </svg>
+                                </button>
+                            </section>`;
+
     $("#btn-start-recording").click(function(){
         $("#vc-audio-input").addClass("hide");
         $("#vc-voice-record").removeClass("hide");
@@ -118,7 +134,28 @@ function replaceAudio(src) {
     audio = newAudio;
 }
 
+function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        // When the file is successfully read
+        reader.onloadend = function () {
+            const base64Data = reader.result.split(',')[1]; // Remove the data URI prefix
+            resolve(base64Data);
+        };
+
+        // Handle errors
+        reader.onerror = function (error) {
+            reject(error);
+        };
+
+        // Start reading the blob as a Base64 string
+        reader.readAsDataURL(blob);
+    });
+}
+
 function stopRecordingCallback() {
+    console.log("hello!");
     replaceAudio(URL.createObjectURL(recorder.getBlob()));
 
     btnStartRecording.disabled = false;
@@ -135,8 +172,21 @@ function stopRecordingCallback() {
     }, 300);
 
     audio.play();
-    btnSaveRecording.disabled = false;
-
+    // btnSaveRecording.disabled = false;
+    console.log(audio);
+    const socket = new WebSocket('ws://localhost:3000');
+    socket.addEventListener('open', function () {
+        console.log('Connected to WS Server');
+        blobToBase64(recorder.getBlob()).then((base64Data) => {
+        const data = { fileName: getFileName('mp3'), fileContent: base64Data };
+        socket.send(JSON.stringify(data)); // Convert object to JSON string
+        });
+    });
+    socket.addEventListener('message', function (message) {
+        console.log('Message from Server:', message.data);
+    });
+    socket.addEventListener('close');
+    return;
 
 }
 
@@ -312,6 +362,18 @@ btnSaveRecording.onclick = function () {
     });
     // invokeSaveAsDialog(file);
 
+    const socket = new WebSocket('ws://localhost:3000');
+    socket.addEventListener('open', function () {
+        console.log('Connected to WS Server');
+        const data = { fileName: getFileName('mp3'), files: [] };
+        socket.send(JSON.stringify(data)); // Convert object to JSON string
+
+    });
+    socket.addEventListener('message', function (message) {
+        console.log('Message from Server:', message.data);
+    });
+    socket.addEventListener('close');
+    return;
     var formData = new FormData();
     formData.append('new_voice_file', file);
     formData.append('new_voice_file_name',getFileName('mp3'));
@@ -436,4 +498,18 @@ function readMultipleFiles(input) {
             reader.readAsDataURL(file);
         }
     }
+}
+
+function a(){
+    const socket = new WebSocket('ws://localhost:3000');
+    socket.addEventListener('open', function () {
+        console.log('Connected to WS Server');
+        const data = { type: "upload", files: [] };
+        socket.send(JSON.stringify(data)); // Convert object to JSON string
+
+    });
+    socket.addEventListener('message', function (message) {
+        console.log('Message from Server:', message.data);
+    });
+    socket.addEventListener('close');
 }
