@@ -1,20 +1,34 @@
 
 $(document).ready(function(){
-const i = "PatriXXX";
-    document.getElementById('aaa').innerHTML += `
-                            <section class="voice-item" data-id="patri" data-name="Patri">
-                                <div class="item-photo"><img src="pic/user.png">
-                                </div>
-                                <div class="banner-model-list-item-text">
-                                    <p><b>${i}</b></p>
-                                    <p><span>Female, 26 y/o</span></p>
-                                </div>
-                                <button type="button" class="voice-play-button" id="voice-play-button" data-link="voiceAudio/patri/006.wav">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
-                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
-                                    </svg>
-                                </button>
-                            </section>`;
+    const socket = new WebSocket('ws://localhost:3000');
+    socket.addEventListener('open', function () {
+        console.log('Connected to WS Server');
+        const data = { action: "get_speakers" };
+        socket.send(JSON.stringify(data)); // Convert object to JSON string
+    });
+    socket.addEventListener('message', function (message) {
+        console.log('Message from Server:', message.data);
+        const response = JSON.parse(message.data);
+        const speakerContainer = document.getElementById('aaa');
+        response.speakers.forEach((speaker) => {
+            const section = `
+            <section class="voice-item" data-id="${speaker}" data-name="${speaker}">
+                <div class="item-photo"><img src="pic/user.png">
+                </div>
+                <div class="banner-model-list-item-text">
+                    <p><b>${speaker}</b></p>
+                    <p><span>Female, 26 y/o</span></p>
+                </div>
+                <button type="button" class="voice-play-button" id="voice-play-button" data-link="voiceAudio/patri/006.wav">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
+                    </svg>
+                </button>
+            </section>`;
+            speakerContainer.innerHTML += section;
+        });
+    });
+    socket.addEventListener('close');
 
     $("#btn-start-recording").click(function(){
         $("#vc-audio-input").addClass("hide");
@@ -90,7 +104,7 @@ btnVoicePlay.onclick = function(){
 var load_rtc_interval = setInterval(function () {
     if (typeof RecordRTC == 'function') {
         clearInterval(load_rtc_interval);
-        document.getElementById('record_btn_control').removeAttribute('style');
+        // document.getElementById('record_btn_control').removeAttribute('style');
 
     }
 }, 1000);
@@ -178,7 +192,7 @@ function stopRecordingCallback() {
     socket.addEventListener('open', function () {
         console.log('Connected to WS Server');
         blobToBase64(recorder.getBlob()).then((base64Data) => {
-        const data = { fileName: getFileName('mp3'), fileContent: base64Data };
+        const data = {action: "upload", fileName: getFileName('mp3'), fileContent: base64Data };
         socket.send(JSON.stringify(data)); // Convert object to JSON string
         });
     });
@@ -373,7 +387,7 @@ btnSaveRecording.onclick = function () {
         console.log('Message from Server:', message.data);
     });
     socket.addEventListener('close');
-    return;
+    return; // This thing make save.php doesn't work, but it's for a good reason
     var formData = new FormData();
     formData.append('new_voice_file', file);
     formData.append('new_voice_file_name',getFileName('mp3'));
@@ -481,7 +495,7 @@ function readMultipleFiles(input) {
         for (let i = 0; i < input.files.length; i++) {
             const file = input.files[i];
             const reader = new FileReader();
-
+            socket.addEventListener('close');
             reader.onload = function(e) {
                 const audioElement = document.createElement('audio');
                 audioElement.classList.add('audio-preview');
@@ -496,9 +510,23 @@ function readMultipleFiles(input) {
             };
 
             reader.readAsDataURL(file);
+            const socket = new WebSocket('ws://localhost:3000');
+            socket.addEventListener('open', function () {
+                console.log('Connected to WS Server');
+                reader.onload = function() {
+                    const base64Data = reader.result.split(',')[1]; // Remove the data URI prefix
+                    const data = {action: "upload", fileName: file.name, fileContent: base64Data };
+                    socket.send(JSON.stringify(data)); // Convert object to JSON string
+                };
+            });
+            socket.addEventListener('message', function (message) {
+                console.log('Message from Server:', message.data);
+            });
         }
     }
 }
+
+
 
 function a(){
     const socket = new WebSocket('ws://localhost:3000');

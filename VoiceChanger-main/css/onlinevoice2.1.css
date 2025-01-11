@@ -161,6 +161,28 @@
 	color: var(--60, #999);
 }
 
+.banner-audio-list-item-text {
+	width: calc(100% - 170px);
+	text-align: left;
+	margin-left: 10px;
+}
+
+.banner-audio-list-item-text p {
+	margin: 10px;
+}
+
+.banner-audio-list-item-text p b {
+	font-size: 16px;
+	font-weight: 600;
+	color: var(---25, #404040);
+}
+
+.banner-audio-list-item-text p span {
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--60, #999);
+}
+
 .banner-model-list-link {
 	display: flex;
 	padding: 10px 10px;

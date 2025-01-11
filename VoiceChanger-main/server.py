@@ -4,6 +4,10 @@ import json
 import subprocess
 import os
 
+def save_file(file_path, file_content):
+    with open(file_path, "wb") as f:
+        f.write(file_content)
+
 async def handle_client(websocket, path):
     await websocket.send(json.dumps({"status": "success", "message": "Connected to server."}))
     try:
@@ -13,9 +17,14 @@ async def handle_client(websocket, path):
             print(data)
             response = {"status": "error", "message": "Invalid request type."}
             generated_voice = None
+            
+            if data["action"] == "get_speakers":
+                config = json.load(open("../configs/config.json"))
+                speakers = config["spk"].keys()
+                response = {"status": "success","message": "List of speakers receive successfully", "speakers": list(speakers)}
 
             # Handle file upload
-            if data["type"] == "upload":
+            if data["action"] == "upload":
                 for file in data["files"]:
                     file_path = f"../raw/{file['name']}"
                     with open(file_path, "wb") as f:
@@ -23,7 +32,7 @@ async def handle_client(websocket, path):
                 response = {"status": "success", "message": "Files uploaded successfully."}
 
             # Handle voice generation
-            elif data["type"] == "generate":
+            elif data["action"] == "convert":
                 model_path = "logs/44k/G_633600.pth"  # Default model
                 input_wav = data["input_wav"]
                 speaker = data["speaker"]
@@ -39,7 +48,7 @@ async def handle_client(websocket, path):
                 response = {"status": "success", "message": "Voice generated successfully.", "file": generated_voice}
 
             # Handle download request
-            elif data["type"] == "download":
+            elif data["action"] == "download":
                 file_path = f"../results/{data['file']}"
                 if os.path.exists(file_path):
                     with open(file_path, "rb") as f:
