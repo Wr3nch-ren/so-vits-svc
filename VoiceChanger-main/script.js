@@ -8,6 +8,39 @@ $(document).ready(function(){
     $("#btn-convert").click(function(){
         $("#program-body").addClass("hide");
         $("#loader-body").removeClass("hide");
+        const socket = new WebSocket('ws://localhost:3000');
+        socket.addEventListener('open', function () {
+            console.log('Connected to WS Server');
+            speaker_name = $("#sel-voice-name").text();
+            // Check if the user select the one or multiple original voice or record an original voice
+            // If the user record an original voice
+            if ($("#vc-file-preview").hasClass("hide")) {
+                const audioElement = document.querySelector('audio');
+                const audioSrc = audioElement.src;
+                const data = { action: "convert", input_wav: audioSrc, speaker: speaker_name };
+                socket.send(JSON.stringify(data)); // Convert object to JSON string
+            // If the user select multiple original voices
+            } else {
+                const audioPreviews = document.getElementsByClassName('audio-preview');
+                const audioFiles = [];
+                for (let i = 0; i < audioPreviews.length; i++) {
+                    const audioElement = audioPreviews[i];
+                    const audioSrc = audioElement.src;
+                    audioFiles.push(audioSrc);
+                }
+                const data = { action: "convert", input_wav: audioFiles, speaker: speaker_name };
+                socket.send(JSON.stringify(data)); // Convert object to JSON string
+            }
+        });
+        socket.addEventListener('message', function (message) {
+            const response = JSON.parse(message.data);
+            // Voice is inside response.voice_content in base64 format
+            const voiceContent = response.voice_content;
+            console.log('Message from Server:', message.data);
+            $("#loader-body").addClass("hide");
+            $("#download-body").removeClass("hide");
+        });
+        socket.addEventListener('close');
     });
 
 // Audio Playing Section
