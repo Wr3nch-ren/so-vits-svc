@@ -32,3 +32,4 @@ pyyaml
 pynvml
 faiss-cpu
 websockets
+pydub
