@@ -48,14 +48,15 @@ $(document).ready(function(){
         const response = JSON.parse(message.data);
         // Voice is inside response.voice_content in base64 format
         const voiceContent = response.voice_content;
-        console.log(voiceContent)
 
         // TODO: CONVERT base64 to wav file
-
+        // decoded_to_wav = decodeBase64Audio(voiceContent)
 
         console.log("Message from Server:", message.data);
         $("#loader-body").addClass("hide");
         $("#download-body").removeClass("hide");
+
+        retrieve();
       });
       socket.addEventListener("close");
     });
@@ -569,6 +570,35 @@ function readMultipleFiles(input) {
 
         }
     }
+}
+
+// connect to socket to retrive audio file(s) from results/
+function retrieve () {
+  const socket = new WebSocket("ws://localhost:3000");
+  socket.addEventListener("open", function () {
+    console.log("DOWNLOAD has connected to WS Server");
+    const data = { type: "retrieve" };
+    socket.send(JSON.stringify(data)); // Send the request to retrieve files
+  });
+
+  socket.addEventListener("message", function (event) {
+    const response = JSON.parse(event.data); // Parse the server's response
+    console.log("Files retrieved successfully:", response.files);
+
+    const fileListContainer = document.getElementById("file-list");
+    fileListContainer.innerHTML = ""; // Clear previous content
+
+    response.files.forEach((file) => {
+      // Create download links for each file
+      const link = document.createElement("a");
+      link.href = `data:audio/wav;base64,${file.fileContent}`;
+      link.download = file.fileName;
+      link.textContent = `Download ${file.fileName}`;
+      link.style.display = "block";
+
+      fileListContainer.appendChild(link);
+    });
+  });
 }
 
 

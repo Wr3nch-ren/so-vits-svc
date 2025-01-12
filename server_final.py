@@ -69,12 +69,14 @@ async def handle_client(websocket):
             # Voice conversion
             if data["action"] == "convert":
                 model_path = "logs/44k/G_633600.pth"  # Default model
-                input_name = session_data["file_name"]
-                print(input_name)
+                # input_name = session_data["file_name"]
+                # print(input_name)
                 speaker = data["speaker"]
                 transpose = 0  # Default transpose value
                 
                 def process_file(input_file):
+                    return ""
+                    """
                     # Run the voice conversion command
                     print("file processing...")
                     command = ("python", "inference_main.py", "-m", model_path, "-c", "configs/config.json", "-n", input_file, "-t", str(transpose), "-s", speaker)
@@ -82,11 +84,11 @@ async def handle_client(websocket):
 
                     # Generated .flac file
                     generated_flac = f"{input_file}_{transpose}key_{speaker}_sovdiff_pm.flac"
-                    flac_path = f"/results/{generated_flac}"
+                    flac_path = f"results/{generated_flac}"
 
                     # Convert .flac to .wav
                     generated_wav = generated_flac.replace(".flac", ".wav")
-                    wav_path = f"/results/{generated_wav}"
+                    wav_path = f"results/{generated_wav}"
                     convert_to_wav(flac_path, wav_path)
 
                     # Encode the .wav file to Base64
@@ -94,7 +96,9 @@ async def handle_client(websocket):
                         encoded_wav = base64.b64encode(f.read()).decode("utf-8")
 
                     return encoded_wav
+                    """
 
+                """
                 # Process multiple files
                 if isinstance(input_name, list):
                     voice_content = []
@@ -115,6 +119,20 @@ async def handle_client(websocket):
                         "message": "Voice conversion successful.",
                         "voice": voice_content,
                     }
+                """
+            
+            if data["action"] == "retrieve":
+                audio_folder = "results"
+                audio_files = {}
+                for file_name in os.listdir(audio_folder):
+                    print(file_name)
+                    file_path = os.path.join(audio_folder, file_name)
+                    with open(file_path, "rb") as audio_file:
+                        encoded_content = base64.b64encode(audio_file.read()).decode('utf-8')
+                        audio_files.append({"fileName": file_name, "fileContent": encoded_content})
+
+                response = {"status": "success", "message": "File retrieve successfully."}
+                return audio_files
             
             # Send the respond
             await websocket.send(json.dumps(response))

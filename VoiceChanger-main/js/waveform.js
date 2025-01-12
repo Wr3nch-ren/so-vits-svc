@@ -1,41 +1,38 @@
-import WaveSurfer from 'https://cdn.jsdelivr.net/npm/wavesurfer.js@7/dist/wavesurfer.esm.js'
+import WaveSurfer from "https://cdn.jsdelivr.net/npm/wavesurfer.js@7/dist/wavesurfer.esm.js";
 
 const wavesurfer = WaveSurfer.create({
-    container: '#waveform',
-    waveColor: '#92c3cc',
-    barWidth: 2,
-    progressColor: '#322f2f',
-    url: 'voiceAudio/patri/006.wav',
+  container: "#waveform",
+  waveColor: "#92c3cc",
+  barWidth: 2,
+  progressColor: "#322f2f",
 });
 
-// เลือก element .audio-item ตัวแรกและตั้งค่า URL เริ่มต้น
-/*const firstAudioItem = document.querySelector('.audio-item');
-const initialUrl = firstAudioItem.attr('data-link');
+// Select the first audio item and load its URL
+const firstAudioItem = document.querySelector(".audio-item");
+const initialUrl = firstAudioItem.getAttribute("data-link");
 wavesurfer.load(initialUrl);
 
-// เพิ่ม event listener ให้กับ .audio-item ทั้งหมด
-document.querySelectorAll('.audio-item').forEach(item => {
-    item.addEventListener('click', () => {
-        const audioLink = item.dataset.link;
-        wavesurfer.load(audioLink);
-    });
-});*/
+// Add event listeners to all audio items to change the waveform
+document.querySelectorAll(".audio-item").forEach((item) => {
+  item.addEventListener("click", function () {
+    const fileName = this.querySelector("b").textContent; // Get the <b> inside the clicked .audio-item
+    console.log("fileName: " + fileName);
 
-wavesurfer.on('click', () => {
-    wavesurfer.play()
+    // Update the <h2> element with id="fileName" if it exists
+    const fileNameElement = document.querySelector("#fileName");
+    if (fileNameElement) {
+      fileNameElement.textContent = fileName; // Update the text content of <h2>
+    } else {
+      console.error("No <h2> element with id='fileName' found.");
+      return; // Exit if <h2> element with id "fileName" doesn't exist
+    }
+
+    const audioLink = item.dataset.link;
+    wavesurfer.load(audioLink); // Load the new audio file and update the waveform
+  });
 });
 
-
-
-/*import WaveSurfer from 'https://cdn.jsdelivr.net/npm/wavesurfer.js@7/dist/wavesurfer.esm.js'
-
-const wavesurfer = WaveSurfer.create({
-  container: '#waveform',
-  waveColor: '#4F4A85',
-  progressColor: '#383351',
-  url: 'voiceAudio/patri/006.wav',
-})
-
-wavesurfer.on('interaction', () => {
-  wavesurfer.play()
-})*/
+// Play the audio when waveform is clicked
+wavesurfer.on("click", () => {
+  wavesurfer.play();
+});
