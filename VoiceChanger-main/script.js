@@ -268,7 +268,8 @@ console.log("btnStartREC : " + btnStartRecording)
 console.log("btnStopREC : " + btnStopRecording)
 console.log("btnRestartREC : " + btnRestartRecording)
 
-btnRestartRecording.onclick = function(){
+btnRestartRecording.onclick = function(event){
+    event.preventDefault();
     this.disabled = true;
 
     if (!microphone) {
@@ -333,7 +334,8 @@ btnRestartRecording.onclick = function(){
     btnStopRecording.disabled = false;
 };
 
-btnStartRecording.onclick = function () {
+btnStartRecording.onclick = function (event) {
+    event.preventDefault();
     this.disabled = true;
     this.style.border = '';
     this.style.fontSize = '';
