@@ -27,12 +27,12 @@ async def handle_client(websocket):
             
             # Receive request to get voice models (keys inside spk in config.json)
             if data["action"] == "get_speakers":
-                config = json.load(open("../configs/config.json"))
+                config = json.load(open("configs/config.json"))
                 speakers = config["spk"].keys()
                 wav_path_list = []
                 for speaker in speakers:
                     # Find the first wav file in speaker's folder
-                    speaker_folder = f"../dataset/44k/{speaker}"
+                    speaker_folder = f"/dataset/44k/{speaker}"
                     wav_files = [f for f in os.listdir(speaker_folder) if f.endswith(".wav")]
                     wav_file = wav_files[0]
                     wav_path = os.path.join(speaker_folder, wav_file)
@@ -46,12 +46,12 @@ async def handle_client(websocket):
                 file_name = data["fileName"]
                 file_content = base64.b64decode(data["fileContent"])  # Decode Base64
                 print("Printing file content:",file_content)
-                file_path = f"../raw/{file_name}"
+                file_path = f"raw/{file_name}"
                 
                 # For multiple files
                 if type(file_name) == list:
                     for i in range(len(file_name)):
-                        file_path = f"../raw/{file_name[i]}"
+                        file_path = f"raw/{file_name[i]}"
                         save_file(file_path, file_content[i])
                 
                 # Save the file to disk
@@ -73,18 +73,18 @@ async def handle_client(websocket):
                     # Run the voice conversion command
                     print("file processing...")
                     command = (
-                        f"python inference_main.py -m {model_path} -c configs/config.json "
+                        f"python inference_main.py -m {model_path} -c configs/config.json"
                         f"-n {input_file} -t {transpose} -s {speaker}"
                     )
                     subprocess.run(command, shell=True)
 
                     # Generated .flac file
                     generated_flac = f"{input_file}_{transpose}key_{speaker}_sovdiff_pm.flac"
-                    flac_path = f"../results/{generated_flac}"
+                    flac_path = f"/results/{generated_flac}"
 
                     # Convert .flac to .wav
                     generated_wav = generated_flac.replace(".flac", ".wav")
-                    wav_path = f"../results/{generated_wav}"
+                    wav_path = f"/results/{generated_wav}"
                     convert_to_wav(flac_path, wav_path)
 
                     # Encode the .wav file to Base64
