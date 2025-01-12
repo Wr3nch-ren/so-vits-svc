@@ -120,7 +120,7 @@ async def handle_client(websocket):
         print(f"Connection closed: {e}")
 
 async def main():
-    server = await websockets.serve(handle_client, "127.0.0.1", 3000)
+    server = await websockets.serve(handle_client, "127.0.0.1", 3000, max_size=10 * 1024 * 1024)
     print("[*] WebSocket server running on ws://127.0.0.1:3000")
     await server.wait_closed()
 
