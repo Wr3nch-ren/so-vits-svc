@@ -5,49 +5,66 @@ $(document).ready(function(){
         $("#vc-voice-record").removeClass("hide");
     });
 
-    $("#btn-convert").click(function(){
-        $("#program-body").addClass("hide");
-        $("#loader-body").removeClass("hide");
-        const socket = new WebSocket('ws://localhost:3000');
-        socket.addEventListener('open', function () {
-            console.log('Connected to WS Server');
-            speaker_name = $("#sel-voice-name").text();
-            // Check if the user select the one or multiple original voice or record an original voice
-            // If the user record an original voice
-            if ($("#vc-file-preview").hasClass("hide")) {
-                const audioElement = document.querySelector('audio');
-                const audioSrc = audioElement.src;
-                const data = { action: "convert", input_wav: audioSrc, speaker: speaker_name };
-                socket.send(JSON.stringify(data)); // Convert object to JSON string
-            // If the user select multiple original voices
-            } else {
-                const audioPreviews = document.getElementsByClassName('audio-preview');
-                const audioFiles = [];
-                for (let i = 0; i < audioPreviews.length; i++) {
-                    const audioElement = audioPreviews[i];
-                    const audioSrc = audioElement.src;
-                    audioFiles.push(audioSrc);
-                }
-                const data = { action: "convert", input_wav: audioFiles, speaker: speaker_name };
-                socket.send(JSON.stringify(data)); // Convert object to JSON string
-            }
-        });
-        socket.addEventListener('message', function (message) {
-            const response = JSON.parse(message.data);
-            // Voice is inside response.voice_content in base64 format
-            const voiceContent = response.voice_content;
-            console.log('Message from Server:', message.data);
-            $("#loader-body").addClass("hide");
-            $("#download-body").removeClass("hide");
-        });
-        socket.addEventListener('close');
+    $("#btn-convert").click(function(event){
+      event.preventDefault(); // Prevent form submission
+      $("#program-body").addClass("hide");
+      $("#loader-body").removeClass("hide");
+      const socket = new WebSocket("ws://localhost:3000");
+      socket.addEventListener("open", function () {
+        console.log("Connected to WS Server");
+        speaker_name = $("#sel-voice-name").text();
+        console.log("Selected Target to convert: " + speaker_name);
+        // Check if the user select the one or multiple source voice or record an source voice
+        // If the user record an source voice
+        if ($("#vc-file-preview").hasClass("hide")) {
+          const audioElement = document.querySelector("audio");
+          const audioSrc = audioElement.src;
+          const data = {
+            action: "convert",
+            input_wav: audioSrc,
+            speaker: speaker_name,
+          };
+          socket.send(JSON.stringify(data)); // Convert object to JSON string
+        // If the user select multiple source voices
+        } else {
+          const audioPreviews =
+            document.getElementsByClassName("audio-preview");
+          const audioFiles = [];
+          for (let i = 0; i < audioPreviews.length; i++) {
+            const audioElement = audioPreviews[i];
+            const audioSrc = audioElement.src;
+            audioFiles.push(audioSrc);
+          }
+          console.log(audioFiles)
+          const data = {
+            action: "convert",
+            input_wav: audioFiles,
+            speaker: speaker_name,
+          };
+          socket.send(JSON.stringify(data)); // Convert object to JSON string
+        }
+      });
+      socket.addEventListener("message", function (message) {
+        const response = JSON.parse(message.data);
+        // Voice is inside response.voice_content in base64 format
+        const voiceContent = response.voice_content;
+        console.log(voiceContent)
+
+        // TODO: CONVERT base64 to wav file
+
+
+        console.log("Message from Server:", message.data);
+        $("#loader-body").addClass("hide");
+        $("#download-body").removeClass("hide");
+      });
+      socket.addEventListener("close");
     });
 
 // Audio Playing Section
     const audioPlayer = new Audio();
     audioPlayer.style.display = 'none';
 
-    $(".voice-play-sel-button").click(function() {
+    $(".voice-play-sel-button").click(function(event) {
         event.preventDefault();
         const audioLink = $(this).data('data-link');
         console.log("Playing audio:", audioLink);
@@ -65,7 +82,7 @@ $(document).ready(function(){
         
     });
 
-    $(".voice-pause-sel-button").click(function() {
+    $(".voice-pause-sel-button").click(function(event) {
         event.preventDefault();
         if (audioPlayer !== null && !audioPlayer.paused) {
             audioPlayer.pause();
@@ -245,8 +262,11 @@ var microphone;
 var btnStartRecording = document.getElementById('btn-start-recording');
 var btnStopRecording = document.getElementById('btn-stop-recording');
 var btnRestartRecording = document.getElementById('btn-restart-recording');
-var btnSaveRecording = document.getElementById('btn-save-recording');
+// var btnSaveRecording = document.getElementById('btn-save-recording');
 
+console.log("btnStartREC : " + btnStartRecording)
+console.log("btnStopREC : " + btnStopRecording)
+console.log("btnRestartREC : " + btnRestartRecording)
 
 btnRestartRecording.onclick = function(){
     this.disabled = true;
@@ -265,7 +285,7 @@ btnRestartRecording.onclick = function(){
                 btnStartRecording.style.border = '1px solid red';
                 btnStartRecording.style.fontSize = '150%';
 
-                alert('Please click startRecording button again. First time we tried to access your microphone. Now we will record it.');
+                alert('Please click start Recording button again. First time we tried to access your microphone. Now we will record it.');
                 return;
             }
 

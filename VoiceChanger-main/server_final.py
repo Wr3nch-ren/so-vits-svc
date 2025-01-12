@@ -21,7 +21,7 @@ async def handle_client(websocket):
         async for message in websocket:
             
             data = json.loads(message)
-            print(data)
+            # print(data)
             response = {"status": "error", "message": "Invalid request type."}
             generated_voice = None
             
@@ -71,6 +71,7 @@ async def handle_client(websocket):
                 
                 def process_file(input_file):
                     # Run the voice conversion command
+                    print("file processing...")
                     command = (
                         f"python inference_main.py -m {model_path} -c configs/config.json "
                         f"-n {input_file} -t {transpose} -s {speaker}"
