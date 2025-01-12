@@ -15,30 +15,30 @@ $(document).ready(function(){
         speaker_name = $("#sel-voice-name").text();
         console.log("Selected Target to convert: " + speaker_name);
         // Check if the user select the one or multiple source voice or record an source voice
-        // If the user record an source voice
+        // If the user record a source voice
         if ($("#vc-file-preview").hasClass("hide")) {
-          const audioElement = document.querySelector("audio");
-          const audioSrc = audioElement.src;
+            // Input name is the name of the recorded file
+            const input_name = $("#vc-voice-record").find("audio").attr("src");
+            console.log(input_name)
           const data = {
             action: "convert",
-            input_wav: audioSrc,
+            input_name: input_name,
             speaker: speaker_name,
           };
           socket.send(JSON.stringify(data)); // Convert object to JSON string
         // If the user select multiple source voices
         } else {
-          const audioPreviews =
-            document.getElementsByClassName("audio-preview");
-          const audioFiles = [];
-          for (let i = 0; i < audioPreviews.length; i++) {
-            const audioElement = audioPreviews[i];
-            const audioSrc = audioElement.src;
-            audioFiles.push(audioSrc);
-          }
-          console.log(audioFiles)
+          // Get the list of audio names inside ReadMultipleFiles
+            const audioPreviews = document.getElementById("audioPreviews");
+            const audioPreviewsList = audioPreviews.getElementsByClassName("audio-preview");
+            const audioNames = [];
+            for (let i = 0; i < audioPreviewsList.length; i++) {
+                audioNames.push(audioPreviewsList[i].src);
+            }
+            console.log(audioNames);
           const data = {
             action: "convert",
-            input_wav: audioFiles,
+            input_name: audioNames,
             speaker: speaker_name,
           };
           socket.send(JSON.stringify(data)); // Convert object to JSON string

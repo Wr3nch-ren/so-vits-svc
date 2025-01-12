@@ -15,6 +15,8 @@ def save_file(file_path, file_content):
     with open(file_path, "wb") as f:
         f.write(file_content)
 
+session_data = {}
+
 async def handle_client(websocket):
     await websocket.send(json.dumps({"status": "success", "message": "Connected to server."}))
     try:
@@ -23,7 +25,7 @@ async def handle_client(websocket):
             data = json.loads(message)
             # print(data)
             response = {"status": "error", "message": "Invalid request type."}
-            generated_voice = None
+            
             
             # Receive request to get voice models (keys inside spk in config.json)
             if data["action"] == "get_speakers":
@@ -32,7 +34,7 @@ async def handle_client(websocket):
                 wav_path_list = []
                 for speaker in speakers:
                     # Find the first wav file in speaker's folder
-                    speaker_folder = f"/dataset/44k/{speaker}"
+                    speaker_folder = f"dataset/44k/{speaker}"
                     wav_files = [f for f in os.listdir(speaker_folder) if f.endswith(".wav")]
                     wav_file = wav_files[0]
                     wav_path = os.path.join(speaker_folder, wav_file)
@@ -44,6 +46,7 @@ async def handle_client(websocket):
             # script.js 177-189 (File uploading)
             if data["action"] == "upload":
                 file_name = data["fileName"]
+                print("File name:", file_name)
                 file_content = base64.b64decode(data["fileContent"])  # Decode Base64
                 print("Printing file content:",file_content)
                 file_path = f"raw/{file_name}"
@@ -59,23 +62,22 @@ async def handle_client(websocket):
                     save_file(file_path, file_content)
 
                 print(f"File {file_name} saved successfully!")
+                session_data["file_name"] = file_name
                 response = {"status": "success", "message": "File uploaded successfully."}
                 
             
             # Voice conversion
             if data["action"] == "convert":
                 model_path = "logs/44k/G_633600.pth"  # Default model
-                input_wav = data["input_wav"]
+                input_name = session_data["file_name"]
+                print(input_name)
                 speaker = data["speaker"]
                 transpose = 0  # Default transpose value
                 
                 def process_file(input_file):
                     # Run the voice conversion command
                     print("file processing...")
-                    command = (
-                        f"python inference_main.py -m {model_path} -c configs/config.json"
-                        f"-n {input_file} -t {transpose} -s {speaker}"
-                    )
+                    command = ("python", "inference_main.py", "-m", model_path, "-c", "configs/config.json", "-n", input_file, "-t", str(transpose), "-s", speaker)
                     subprocess.run(command, shell=True)
 
                     # Generated .flac file
@@ -94,10 +96,11 @@ async def handle_client(websocket):
                     return encoded_wav
 
                 # Process multiple files
-                if isinstance(input_wav, list):
+                if isinstance(input_name, list):
                     voice_content = []
-                    for file in input_wav:
-                        voice_content.append(process_file(file))
+                    for file in input_name:
+                        print("Processing file:", file)
+                        voice_content.append(await process_file(file))
                     response = {
                         "status": "success",
                         "message": "Voice conversion successful.",
@@ -106,7 +109,7 @@ async def handle_client(websocket):
 
                 # Process a single file
                 else:
-                    voice_content = process_file(input_wav)
+                    voice_content = await process_file(input_name)
                     response = {
                         "status": "success",
                         "message": "Voice conversion successful.",

@@ -40,7 +40,7 @@ async def handle_client(websocket, path):
 
                 command = (
                     f"python inference_main.py -m {model_path} -c configs/config.json "
-                    f"-n {input_wav} -t {transpose} -s {speaker}"
+                    f"-n {input_wav} -t {transpose} -s {speaker} -eh --shallow_diffusion"
                 )
 
                 subprocess.run(command, shell=True)
