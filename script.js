@@ -46,21 +46,30 @@ $(document).ready(function(){
         }
       });
       socket.addEventListener("message", function (message) {
-        var response = JSON.parse(message.data);  
+        var response = JSON.parse(message.data);
         console.log("Message from Server:", message.data);
-        const audioContainer = document.getElementById('audio-item');
+        const audioContainer = document.querySelector(
+          ".rounded.ovc-setup.border.overflow-auto"
+        );
+        audioContainer.innerHTML = ""; // Clear previous audio items
         response.generated_wav.forEach((wav, index) => {
-            const wavPath = response.wav_path[index]; // Get the matching wav_path for the generated voice conversion
-            console.log("Wav Path:", wavPath);
-            const section = `
+          const wavPath = response.wav_path[index]; // Get the matching wav_path for the generated voice conversion
+          console.log("Wav Path:", wavPath);
+          const section = `
             <section class="audio-item" data-link="${wavPath}">
                 <div class="banner-audio-list-item-text">
                     <p><b>${wav}</b></p>
                 </div>
             </section>
-            `
-            audioContainer.innerHTML += section;
+            `;
+          audioContainer.innerHTML += section;
         });
+        // dispatch new event so that waveform.js and download.js can start
+        document.dispatchEvent(new Event("scriptLoaded"));
+        // added temporary code to show the download button
+        $("#loader-body").addClass("hide");
+        $("#download-body").removeClass("hide");
+        downloadInit();
       });
       socket.addEventListener("close", function () {
         $("#loader-body").addClass("hide");

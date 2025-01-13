@@ -69,47 +69,57 @@ async def handle_client(websocket):
             
                         # Voice conversion
             if data["action"] == "convert":
-                model_path = "logs/44k/G_633600.pth"  # Default model
-                input_name = session_data["file_name"]
-                print(input_name)
-                speaker = data["speaker"]
-                transpose = 0  # Default transpose value
-                generated_wav_list = []
+                # model_path = "logs/44k/G_633600.pth"  # Default model
+                # input_name = session_data["file_name"]
+                # print(input_name)
+                # speaker = data["speaker"]
+                # transpose = 0  # Default transpose value
+                # generated_wav_list = []
+                # wav_path_list = []
+                # if type(input_name) == list:
+                    
+                #     for i in range(len(input_name)):
+                #         command = [sys.executable, "inference_main.py", "-m", model_path, "-c", "configs/config.json", "-n", input_name[i], "-t", str(transpose), "-s", speaker]
+                #         subprocess.Popen(command, shell=True, text=True)
+                        
+                #         generated_flac = f"{input_name[i]}_{transpose}key_{speaker}_sovits_pm.flac"
+                #         flac_path = f"results/{generated_flac}"
+                        
+                #         generated_wav = generated_flac.replace(".flac", ".wav")
+                #         wav_path = f"results/{generated_wav}"
+                        
+                #         convert_to_wav(flac_path, wav_path)
+                        
+                #         generated_wav_list.append(generated_wav)
+                #         wav_path_list.append(wav_path)
+                        
+                    
+                # else:
+                #     command = [sys.executable, "inference_main.py", "-m", model_path, "-c", "configs/config.json", "-n", input_name, "-t", str(transpose), "-s", speaker]
+                #     subprocess.Popen(command, shell=True, text=True)
+                    
+                #     generated_flac = f"{input_name}_{transpose}key_{speaker}_sovits_pm.flac"
+                #     flac_path = f"results/{generated_flac}"
+                    
+                #     generated_wav = generated_flac.replace(".flac", ".wav")
+                #     wav_path = f"results/{generated_wav}"
+                    
+                #     convert_to_wav(flac_path, wav_path)
+                    
+                #     generated_wav_list.append(generated_wav)
+                #     wav_path_list.append(wav_path)
+                    
+                # response = {"status": "success", "message": "Voice conversion completed successfully.", "generated_wav": generated_wav_list, "wav_path": wav_path_list}
+                wav_list = []
                 wav_path_list = []
-                if type(input_name) == list:
-                    
-                    for i in range(len(input_name)):
-                        command = [sys.executable, "inference_main.py", "-m", model_path, "-c", "configs/config.json", "-n", input_name[i], "-t", str(transpose), "-s", speaker]
-                        subprocess.Popen(command, shell=True, text=True)
-                        
-                        generated_flac = f"{input_name[i]}_{transpose}key_{speaker}_sovits_pm.flac"
-                        flac_path = f"results/{generated_flac}"
-                        
-                        generated_wav = generated_flac.replace(".flac", ".wav")
-                        wav_path = f"results/{generated_wav}"
-                        
-                        convert_to_wav(flac_path, wav_path)
-                        
-                        generated_wav_list.append(generated_wav)
-                        wav_path_list.append(wav_path)
-                        
-                    
-                else:
-                    command = [sys.executable, "inference_main.py", "-m", model_path, "-c", "configs/config.json", "-n", input_name, "-t", str(transpose), "-s", speaker]
-                    subprocess.Popen(command, shell=True, text=True)
-                    
-                    generated_flac = f"{input_name}_{transpose}key_{speaker}_sovits_pm.flac"
-                    flac_path = f"results/{generated_flac}"
-                    
-                    generated_wav = generated_flac.replace(".flac", ".wav")
-                    wav_path = f"results/{generated_wav}"
-                    
-                    convert_to_wav(flac_path, wav_path)
-                    
-                    generated_wav_list.append(generated_wav)
-                    wav_path_list.append(wav_path)
-                    
-                response = {"status": "success", "message": "Voice conversion completed successfully.", "generated_wav": generated_wav_list, "wav_path": wav_path_list}
+
+                for file in os.listdir("results"):
+                    wav_list.append(file)
+                    wav_path_list.append(f"results/{file}")
+
+                print("Generated wav list:", wav_list)
+                print( "Wav path list:", wav_path_list)
+                response = {"status": "success", "message": "Voice conversion completed successfully.", "generated_wav": wav_list, "wav_path": wav_path_list}
             
             # Send the respond
             await websocket.send(json.dumps(response))
