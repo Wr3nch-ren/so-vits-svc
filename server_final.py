@@ -79,7 +79,7 @@ async def handle_client(websocket):
                     print("file processing...")
                     command = ("python", "inference_main.py", "-m", model_path, "-c", "configs/config.json", "-n", input_file, "-t", str(transpose), "-s", speaker)
                     print(command)
-                    subprocess.run(command, shell=True)
+                    subprocess.run(command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
 
                     # Generated .flac file
                     generated_flac = f"{input_file}_{transpose}key_{speaker}_sovits_pm.flac"
@@ -89,11 +89,6 @@ async def handle_client(websocket):
                     generated_wav = generated_flac.replace(".flac", ".wav")
                     wav_path = f"results/{generated_wav}"
                     convert_to_wav(flac_path, wav_path)
-
-                    # Encode the .wav file to Base64, and in case of error, send in binary mode as well
-                    with open(wav_path, "rb") as f:
-                        encoded_wav = base64.b64encode(f.read()).decode("utf-8")
-                    return encoded_wav
 
                 # Process multiple files
                 if isinstance(input_name, list):
@@ -105,7 +100,6 @@ async def handle_client(websocket):
                         "status": "success",
                         "message": "Voice conversion successful.",
                         "name": file,
-                        "voice": voice_content,
                     }
 
                 # Process a single file
@@ -115,7 +109,6 @@ async def handle_client(websocket):
                         "status": "success",
                         "message": "Voice conversion successful.",
                         "name": input_name,
-                        "voice": voice_content,
                     }
                     # print(json.dumps(response))
             

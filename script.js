@@ -1,8 +1,9 @@
 
 $(document).ready(function(){
-    $("#btn-start-recording").click(function(){
-        $("#vc-audio-input").addClass("hide");
-        $("#vc-voice-record").removeClass("hide");
+    $("#btn-start-recording").click(function (event) {
+        event.preventDefault()
+      $("#vc-audio-input").addClass("hide");
+      $("#vc-voice-record").removeClass("hide");
     });
 
     $("#btn-convert").click(function(event){
@@ -103,7 +104,6 @@ $(document).ready(function(){
         audioPlayer.src = audioLink;
         audioPlayer.addEventListener('loadeddata', () => {
             audioPlayer.play();
-
             $('.voice-pause-sel-button').show();
             $('.voice-play-sel-button').hide();
         });
