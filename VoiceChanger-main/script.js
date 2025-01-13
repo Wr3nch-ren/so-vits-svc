@@ -50,13 +50,13 @@ $(document).ready(function(){
         const voiceContent = response.voice_content;
 
         // TODO: CONVERT base64 to wav file
-        // decoded_to_wav = decodeBase64Audio(voiceContent)
+        decoded_to_wav = decodeBase64Audio(voiceContent)
 
         console.log("Message from Server:", message.data);
         $("#loader-body").addClass("hide");
         $("#download-body").removeClass("hide");
 
-        retrieve();
+        // retrieve();
       });
       socket.addEventListener("close");
     });
@@ -414,36 +414,36 @@ btnStartRecording.onclick = function (event) {
 };
 
 
-btnSaveRecording.onclick = function () {
-    // this.disabled = true;
-    if (!recorder || !recorder.getBlob()) return;
+// btnSaveRecording.onclick = function () {
+//     // this.disabled = true;
+//     if (!recorder || !recorder.getBlob()) return;
 
-    if (isSafari) {
-        recorder.getDataURL(function (dataURL) {
-            SaveToDisk(dataURL, getFileName('mp3'));
-        });
-        return;
-    }
+//     if (isSafari) {
+//         recorder.getDataURL(function (dataURL) {
+//             SaveToDisk(dataURL, getFileName('mp3'));
+//         });
+//         return;
+//     }
 
-    var blob = recorder.getBlob();
-    var file = new File([blob], getFileName('mp3'), {
-        type: 'audio/mp3'
-    });
-    // invokeSaveAsDialog(file);
+//     var blob = recorder.getBlob();
+//     var file = new File([blob], getFileName('mp3'), {
+//         type: 'audio/mp3'
+//     });
+//     // invokeSaveAsDialog(file);
 
-    const socket = new WebSocket('ws://localhost:3000');
-    socket.addEventListener('open', function () {
-        console.log('Connected to WS Server');
-        const data = { fileName: getFileName('mp3'), files: [] };
-        socket.send(JSON.stringify(data)); // Convert object to JSON string
+//     const socket = new WebSocket('ws://localhost:3000');
+//     socket.addEventListener('open', function () {
+//         console.log('Connected to WS Server');
+//         const data = { fileName: getFileName('mp3'), files: [] };
+//         socket.send(JSON.stringify(data)); // Convert object to JSON string
 
-    });
-    socket.addEventListener('message', function (message) {
-        console.log('Message from Server:', message.data);
-    });
-    socket.addEventListener('close');
+//     });
+//     socket.addEventListener('message', function (message) {
+//         console.log('Message from Server:', message.data);
+//     });
+//     socket.addEventListener('close');
 
-};
+// };
 
 function click(el) {
     el.disabled = false; // make sure that element is not disabled
@@ -524,6 +524,48 @@ function convertWavToBase64(file, callback) {
     reader.readAsArrayBuffer(file);
 }
 
+function decodeBase64Audio(base64String) {
+  try {
+    // Split the Base64 string to extract metadata and the encoded data
+    const [metadata, base64Data] = base64String.split(",");
+
+    // Extract the MIME type from the metadata
+    const mimeTypeMatch = metadata.match(/data:(.*?);base64/);
+    if (!mimeTypeMatch) {
+      throw new Error("Invalid Base64 audio string: MIME type not found.");
+    }
+    const mimeType = mimeTypeMatch[1];
+
+    // Decode Base64 to binary data
+    const binaryString = atob(base64Data);
+    const len = binaryString.length;
+    const buffer = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      buffer[i] = binaryString.charCodeAt(i);
+    }
+
+    // Create a Blob from the binary data using the detected MIME type
+    const blob = new Blob([buffer], { type: mimeType });
+
+    // Generate a URL for the Blob
+    const audioURL = URL.createObjectURL(blob);
+
+    // Get the file extension from the MIME type
+    const fileExtension = mimeType.split("/")[1];
+
+    // Return all relevant data
+    return {
+      blob,
+      mimeType,
+      audioURL,
+      fileExtension,
+    };
+  } catch (error) {
+    console.error("Error decoding Base64 audio:", error);
+    return null;
+  }
+}
+
 
 // Multiple Audio File Selection
 function readMultipleFiles(input) {
@@ -573,46 +615,32 @@ function readMultipleFiles(input) {
 }
 
 // connect to socket to retrive audio file(s) from results/
-function retrieve () {
-  const socket = new WebSocket("ws://localhost:3000");
-  socket.addEventListener("open", function () {
-    console.log("DOWNLOAD has connected to WS Server");
-    const data = { type: "retrieve" };
-    socket.send(JSON.stringify(data)); // Send the request to retrieve files
-  });
+// function retrieve () {
+//   const socket = new WebSocket("ws://localhost:3000");
+//   socket.addEventListener("open", function () {
+//     console.log("RETRIEVE has connected to WS Server");
+//     const data = { action: "retrieve" }; // Ensure the key matches server-side expectations
+//     socket.send(JSON.stringify(data)); // Send the request to retrieve files
+//   });
 
-  socket.addEventListener("message", function (event) {
-    const response = JSON.parse(event.data); // Parse the server's response
-    console.log("Files retrieved successfully:", response.files);
-
-    const fileListContainer = document.getElementById("file-list");
-    fileListContainer.innerHTML = ""; // Clear previous content
-
-    response.files.forEach((file) => {
-      // Create download links for each file
-      const link = document.createElement("a");
-      link.href = `data:audio/wav;base64,${file.fileContent}`;
-      link.download = file.fileName;
-      link.textContent = `Download ${file.fileName}`;
-      link.style.display = "block";
-
-      fileListContainer.appendChild(link);
-    });
-  });
-}
+//   socket.addEventListener("message", function (event) {
+//     const response = JSON.parse(event.data); // Parse the server's response
+//     console.log("Files retrieved successfully:", response.files);
+//   });
+// }
 
 
 
-function a(){
-    const socket = new WebSocket('ws://localhost:3000');
-    socket.addEventListener('open', function () {
-        console.log('Connected to WS Server');
-        const data = { type: "upload", files: [] };
-        socket.send(JSON.stringify(data)); // Convert object to JSON string
+// function a(){
+//     const socket = new WebSocket('ws://localhost:3000');
+//     socket.addEventListener('open', function () {
+//         console.log('Connected to WS Server');
+//         const data = { type: "upload", files: [] };
+//         socket.send(JSON.stringify(data)); // Convert object to JSON string
 
-    });
-    socket.addEventListener('message', function (message) {
-        console.log('Message from Server:', message.data);
-    });
-    socket.addEventListener('close');
-}
+//     });
+//     socket.addEventListener('message', function (message) {
+//         console.log('Message from Server:', message.data);
+//     });
+//     socket.addEventListener('close');
+// }
