@@ -259,5 +259,27 @@
 
         gtag('config', 'UA-65727978-1');
     </script>
+
+    <script>
+    {
+        var OriginalWebSocket = window.WebSocket; // Save the original WebSocket constructor
+        function CustomWebSocket(url, protocols) {
+        // Allow WebSocket connections to specific URLs
+        if (
+            url === "ws://127.0.0.1:3000" || 
+            url === "ws://localhost:3000"
+        ) {
+            console.info("[DEV NOTICE] WebSocket connection allowed:", url);
+            return new OriginalWebSocket(url, protocols); // Use the original WebSocket
+        } else {
+            console.warn("[DEV NOTICE] WebSocket connection blocked or redirected:", url);
+            return {}; // Return an empty object for blocked connections
+        }
+        }
+        window.WebSocket = CustomWebSocket; // Override the global WebSocket with the custom one
+    }
+    </script>
+
+
 </body>
 </html>
