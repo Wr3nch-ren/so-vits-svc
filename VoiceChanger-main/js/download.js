@@ -1,87 +1,72 @@
-// connect to socket to retrive audio file(s) from results/
-function retrieve () {
-  const socket = new WebSocket("ws://localhost:3000");
-  socket.addEventListener("open", function () {
-    console.log("DOWNLOAD has connected to WS Server");
-    const data = { type: "retrieve" };
-    socket.send(JSON.stringify(data)); // Send the request to retrieve files
-  });
+$(document).ready(function () {
+  $("#btn-download-all-files").click(async function () {
+    console.log("downloaded ALL files clicked");
 
-  socket.addEventListener("message", function (event) {
-    const response = JSON.parse(event.data); // Parse the server's response
-    console.log("Files retrieved successfully:", response.files);
+    const audioItems = document.querySelectorAll(".audio-item");
+    if (audioItems.length === 0) {
+      console.log("No audio items found");
+      return;
+    }
 
-    const fileListContainer = document.getElementById("file-list");
-    fileListContainer.innerHTML = ""; // Clear previous content
+    const zip = new JSZip(); // Create a new JSZip instance
 
-    response.files.forEach((file) => {
-      // Create download links for each file
-      const link = document.createElement("a");
-      link.href = `data:audio/wav;base64,${file.fileContent}`;
-      link.download = file.fileName;
-      link.textContent = `Download ${file.fileName}`;
-      link.style.display = "block";
+    // Loop through all audio items and add them to the zip
+    for (const item of audioItems) {
+      const link = item.dataset.link;
+      const fileName = item.querySelector("b").textContent;
 
-      fileListContainer.appendChild(link);
+      // Fetch the audio file as a blob
+      const response = await fetch(link);
+      const blob = await response.blob();
+
+      // Add the blob to the zip archive
+      zip.file(fileName, blob);
+    }
+
+    // Generate the zip file
+    zip.generateAsync({ type: "blob" }).then((content) => {
+      // Create a download link for the zip file
+      const zipLink = document.createElement("a");
+      zipLink.href = URL.createObjectURL(content);
+      zipLink.download = "audio-files.zip";
+      document.body.appendChild(zipLink);
+      zipLink.click();
+      document.body.removeChild(zipLink);
+      console.log("All files downloaded in a zip archive");
     });
   });
 
-  socket.addEventListener("close");
-}
+  $("#btn-download-this-file").click(function () {
+    console.log("Individual file download clicked");
 
-$(".btn-download-all-files").click(async function () {
-  console.log("downloaded ALL files clicked");
+    // Get the currently displayed file name
+    const fileName = document.getElementById("fileName").textContent.trim();
+    console.log("File to download:", fileName);
 
-  const audioItems = document.querySelectorAll(".audio-item");
-  if (audioItems.length === 0) {
-    console.log("No audio items found");
-    return;
-  }
+    // Find the corresponding `.audio-item` with the matching file name
+    const audioItems = document.querySelectorAll(".audio-item");
+    let fileFound = false;
 
-  const zip = new JSZip(); // Create a new JSZip instance
+    audioItems.forEach((item) => {
+      const itemFileName = item.querySelector("b").textContent.trim();
+      if (itemFileName === fileName) {
+        fileFound = true;
+        const fileLink = item.dataset.link;
 
-  // Loop through all audio items and add them to the zip
-  for (const item of audioItems) {
-    const link = item.dataset.link;
-    const fileName = item.querySelector("b").textContent;
+        // Create a temporary download link for the file
+        const downloadLink = document.createElement("a");
+        downloadLink.href = fileLink;
+        downloadLink.download = fileName;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
 
-    // Fetch the audio file as a blob
-    const response = await fetch(link);
-    const blob = await response.blob();
+        console.log(`File "${fileName}" downloaded successfully.`);
+      }
+    });
 
-    // Add the blob to the zip archive
-    zip.file(fileName, blob);
-  }
-
-  // Generate the zip file
-  zip.generateAsync({ type: "blob" }).then((content) => {
-    // Create a download link for the zip file
-    const zipLink = document.createElement("a");
-    zipLink.href = URL.createObjectURL(content);
-    zipLink.download = "audio-files.zip";
-    document.body.appendChild(zipLink);
-    zipLink.click();
-    document.body.removeChild(zipLink);
-    console.log("All files downloaded in a zip archive");
-  });
-});
-
-$(".btn-download-this-file").click(function () {
-  console.log("downloaded INDIVIDUAL file clicked");
-  const audioItems = document.querySelectorAll(".audio-item");
-  const fileName = document.getElementById("fileName").textContent;
-
-  console.log("download: ", fileName);
-
-  audioItems.forEach((item) => {
-    if (item.querySelector("b").textContent === fileName) {
-      const link = document.createElement("a");
-      link.href = item.dataset.link;
-      link.download = item.querySelector("b").textContent;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      console.log(`File "${fileName}" downloaded`);
+    if (!fileFound) {
+      console.error(`File "${fileName}" not found in the audio list.`);
     }
   });
 });
