@@ -69,7 +69,6 @@ $(document).ready(function(){
         // added temporary code to show the download button
         $("#loader-body").addClass("hide");
         $("#download-body").removeClass("hide");
-        downloadInit();
       });
       socket.addEventListener("close", function () {
         $("#loader-body").addClass("hide");
