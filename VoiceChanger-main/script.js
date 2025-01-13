@@ -45,14 +45,45 @@ $(document).ready(function(){
         }
       });
       socket.addEventListener("message", function (message) {
-        const response = JSON.parse(message.data);
-        // Voice is inside response.voice_content in base64 format
-        const voiceContent = response.voice_content;
-
-        // TODO: CONVERT base64 to wav file
-        decoded_to_wav = decodeBase64Audio(voiceContent)
+        try {
+            var response = JSON.parse(message.data);
+            console.log(response)
+            
+            // Ensure that the response has a valid Base64 string
+            const base64String = response.voice;
+            print("Base64: ", base64String)
+    
+            if (base64String) {
+                // Clean up the Base64 string if necessary
+                const sanitizedBase64String = base64String.replace(/[^A-Za-z0-9+/=]/g, '');
+                print("Sanitized: ", sanitizedBase64String)
+                // Decode the Base64 string
+                const binaryString = atob(sanitizedBase64String);
+    
+                // Convert the binary string to ArrayBuffer
+                const arrayBuffer = new ArrayBuffer(binaryString.length);
+                const uint8Array = new Uint8Array(arrayBuffer);
+    
+                for (let i = 0; i < binaryString.length; i++) {
+                    uint8Array[i] = binaryString.charCodeAt(i);
+                }
+    
+                // Create a Blob and play it
+                const audioBlob = new Blob([arrayBuffer], { type: "audio/wav" });
+                const audioURL = URL.createObjectURL(audioBlob);
+                const audioElement = new Audio(audioURL);
+                audioElement.play();
+                
+            } else {
+                console.error("No voice data found in response.");
+            }
+    
+        } catch (error) {
+            console.error("Error processing WebSocket message:", error);
+        }
 
         console.log("Message from Server:", message.data);
+        // console.log(decoded_to_wav);
         $("#loader-body").addClass("hide");
         $("#download-body").removeClass("hide");
 
@@ -522,48 +553,6 @@ function convertWavToBase64(file, callback) {
 
     // Read the file as an ArrayBuffer
     reader.readAsArrayBuffer(file);
-}
-
-function decodeBase64Audio(base64String) {
-  try {
-    // Split the Base64 string to extract metadata and the encoded data
-    const [metadata, base64Data] = base64String.split(",");
-
-    // Extract the MIME type from the metadata
-    const mimeTypeMatch = metadata.match(/data:(.*?);base64/);
-    if (!mimeTypeMatch) {
-      throw new Error("Invalid Base64 audio string: MIME type not found.");
-    }
-    const mimeType = mimeTypeMatch[1];
-
-    // Decode Base64 to binary data
-    const binaryString = atob(base64Data);
-    const len = binaryString.length;
-    const buffer = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      buffer[i] = binaryString.charCodeAt(i);
-    }
-
-    // Create a Blob from the binary data using the detected MIME type
-    const blob = new Blob([buffer], { type: mimeType });
-
-    // Generate a URL for the Blob
-    const audioURL = URL.createObjectURL(blob);
-
-    // Get the file extension from the MIME type
-    const fileExtension = mimeType.split("/")[1];
-
-    // Return all relevant data
-    return {
-      blob,
-      mimeType,
-      audioURL,
-      fileExtension,
-    };
-  } catch (error) {
-    console.error("Error decoding Base64 audio:", error);
-    return null;
-  }
 }
 
 

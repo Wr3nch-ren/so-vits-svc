@@ -18,7 +18,7 @@ def save_file(file_path, file_content):
 session_data = {}
 
 async def handle_client(websocket):
-    await websocket.send(json.dumps({"status": "success", "message": "Connected to server."}))
+    # await websocket.send(json.dumps({"status": "success", "message": "Connected to server."}))
     try:
         async for message in websocket:
             
@@ -74,14 +74,15 @@ async def handle_client(websocket):
                 speaker = data["speaker"]
                 transpose = 0  # Default transpose value
                 
-                def process_file(input_file):
+                async def process_file(input_file):
                     # Run the voice conversion command
                     print("file processing...")
                     command = ("python", "inference_main.py", "-m", model_path, "-c", "configs/config.json", "-n", input_file, "-t", str(transpose), "-s", speaker)
+                    print(command)
                     subprocess.run(command, shell=True)
 
                     # Generated .flac file
-                    generated_flac = f"{input_file}_{transpose}key_{speaker}_sovdiff_pm.flac"
+                    generated_flac = f"{input_file}_{transpose}key_{speaker}_sovits_pm.flac"
                     flac_path = f"results/{generated_flac}"
 
                     # Convert .flac to .wav
@@ -89,10 +90,9 @@ async def handle_client(websocket):
                     wav_path = f"results/{generated_wav}"
                     convert_to_wav(flac_path, wav_path)
 
-                    # Encode the .wav file to Base64
+                    # Encode the .wav file to Base64, and in case of error, send in binary mode as well
                     with open(wav_path, "rb") as f:
                         encoded_wav = base64.b64encode(f.read()).decode("utf-8")
-
                     return encoded_wav
 
                 # Process multiple files
@@ -104,6 +104,7 @@ async def handle_client(websocket):
                     response = {
                         "status": "success",
                         "message": "Voice conversion successful.",
+                        "name": file,
                         "voice": voice_content,
                     }
 
@@ -113,30 +114,14 @@ async def handle_client(websocket):
                     response = {
                         "status": "success",
                         "message": "Voice conversion successful.",
+                        "name": input_name,
                         "voice": voice_content,
                     }
-            
-            # if data["action"] == "retrieve":
-            #     audio_folder = "results"
-            #     audio_files = []
-            #     for file_name in os.listdir(audio_folder):
-            #         file_path = os.path.join(audio_folder, file_name)
-            #         with open(file_path, "rb") as audio_file:
-            #             file_content = audio_file.read()  # Read the file in binary mode
-            #             audio_files.append({
-            #                 "fileName": file_name,
-            #                 "fileContent": file_content  # Direct binary content without base64 encoding
-            #             })
-            #     response = {
-            #         "status": "success", 
-            #         "message": "File retrieve successfully.", 
-            #         "files": audio_files,
-            #     }
-            #     print(len(response))
-            #     return json.dumps(response)
+                    # print(json.dumps(response))
             
             # Send the respond
             await websocket.send(json.dumps(response))
+            print("MESSAGE SEND: ", response)
 
     except websockets.ConnectionClosed as e:
         print(f"Connection closed: {e}")
