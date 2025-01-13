@@ -3,6 +3,7 @@ import websockets
 import base64
 import json
 import subprocess
+import sys
 import os
 from pydub import AudioSegment
 
@@ -66,51 +67,49 @@ async def handle_client(websocket):
                 response = {"status": "success", "message": "File uploaded successfully."}
                 
             
-            # Voice conversion
+                        # Voice conversion
             if data["action"] == "convert":
                 model_path = "logs/44k/G_633600.pth"  # Default model
                 input_name = session_data["file_name"]
                 print(input_name)
                 speaker = data["speaker"]
                 transpose = 0  # Default transpose value
-                
-                async def process_file(input_file):
-                    # Run the voice conversion command
-                    print("file processing...")
-                    command = ("python", "inference_main.py", "-m", model_path, "-c", "configs/config.json", "-n", input_file, "-t", str(transpose), "-s", speaker)
-                    print(command)
-                    subprocess.run(command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
-
-                    # Generated .flac file
-                    generated_flac = f"{input_file}_{transpose}key_{speaker}_sovits_pm.flac"
+                generated_wav_list = []
+                wav_path_list = []
+                if type(input_name) == list:
+                    
+                    for i in range(len(input_name)):
+                        command = [sys.executable, "inference_main.py", "-m", model_path, "-c", "configs/config.json", "-n", input_name[i], "-t", str(transpose), "-s", speaker]
+                        subprocess.Popen(command, shell=True, text=True)
+                        
+                        generated_flac = f"{input_name[i]}_{transpose}key_{speaker}_sovits_pm.flac"
+                        flac_path = f"results/{generated_flac}"
+                        
+                        generated_wav = generated_flac.replace(".flac", ".wav")
+                        wav_path = f"results/{generated_wav}"
+                        
+                        convert_to_wav(flac_path, wav_path)
+                        
+                        generated_wav_list.append(generated_wav)
+                        wav_path_list.append(wav_path)
+                        
+                    
+                else:
+                    command = [sys.executable, "inference_main.py", "-m", model_path, "-c", "configs/config.json", "-n", input_name, "-t", str(transpose), "-s", speaker]
+                    subprocess.Popen(command, shell=True, text=True)
+                    
+                    generated_flac = f"{input_name}_{transpose}key_{speaker}_sovits_pm.flac"
                     flac_path = f"results/{generated_flac}"
-
-                    # Convert .flac to .wav
+                    
                     generated_wav = generated_flac.replace(".flac", ".wav")
                     wav_path = f"results/{generated_wav}"
+                    
                     convert_to_wav(flac_path, wav_path)
-
-                # Process multiple files
-                if isinstance(input_name, list):
-                    voice_content = []
-                    for file in input_name:
-                        print("Processing file:", file)
-                        voice_content.append(await process_file(file))
-                    response = {
-                        "status": "success",
-                        "message": "Voice conversion successful.",
-                        "name": file,
-                    }
-
-                # Process a single file
-                else:
-                    voice_content = await process_file(input_name)
-                    response = {
-                        "status": "success",
-                        "message": "Voice conversion successful.",
-                        "name": input_name,
-                    }
-                    # print(json.dumps(response))
+                    
+                    generated_wav_list.append(generated_wav)
+                    wav_path_list.append(wav_path)
+                    
+                response = {"status": "success", "message": "Voice conversion completed successfully.", "generated_wav": generated_wav_list, "wav_path": wav_path_list}
             
             # Send the respond
             await websocket.send(json.dumps(response))

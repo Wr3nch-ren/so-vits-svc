@@ -46,51 +46,26 @@ $(document).ready(function(){
         }
       });
       socket.addEventListener("message", function (message) {
-        try {
-            var response = JSON.parse(message.data);
-            console.log(response)
-            
-            // Ensure that the response has a valid Base64 string
-            const base64String = response.voice;
-            print("Base64: ", base64String)
-    
-            if (base64String) {
-                // Clean up the Base64 string if necessary
-                const sanitizedBase64String = base64String.replace(/[^A-Za-z0-9+/=]/g, '');
-                print("Sanitized: ", sanitizedBase64String)
-                // Decode the Base64 string
-                const binaryString = atob(sanitizedBase64String);
-    
-                // Convert the binary string to ArrayBuffer
-                const arrayBuffer = new ArrayBuffer(binaryString.length);
-                const uint8Array = new Uint8Array(arrayBuffer);
-    
-                for (let i = 0; i < binaryString.length; i++) {
-                    uint8Array[i] = binaryString.charCodeAt(i);
-                }
-    
-                // Create a Blob and play it
-                const audioBlob = new Blob([arrayBuffer], { type: "audio/wav" });
-                const audioURL = URL.createObjectURL(audioBlob);
-                const audioElement = new Audio(audioURL);
-                audioElement.play();
-                
-            } else {
-                console.error("No voice data found in response.");
-            }
-    
-        } catch (error) {
-            console.error("Error processing WebSocket message:", error);
-        }
-
+        var response = JSON.parse(message.data);  
         console.log("Message from Server:", message.data);
-        // console.log(decoded_to_wav);
+        const audioContainer = document.getElementById('audio-item');
+        response.generated_wav.forEach((wav, index) => {
+            const wavPath = response.wav_path[index]; // Get the matching wav_path for the generated voice conversion
+            console.log("Wav Path:", wavPath);
+            const section = `
+            <section class="audio-item" data-link="${wavPath}">
+                <div class="banner-audio-list-item-text">
+                    <p><b>${wav}</b></p>
+                </div>
+            </section>
+            `
+            audioContainer.innerHTML += section;
+        });
+      });
+      socket.addEventListener("close", function () {
         $("#loader-body").addClass("hide");
         $("#download-body").removeClass("hide");
-
-        // retrieve();
       });
-      socket.addEventListener("close");
     });
 
 // Audio Playing Section
