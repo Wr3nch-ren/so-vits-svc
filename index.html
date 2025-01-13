@@ -274,7 +274,7 @@
         } else {
             console.warn("[DEV NOTICE] WebSocket connection blocked or redirected:", url);
             return {}; // Return an empty object for blocked connections
-        }
+            };
         }
         window.WebSocket = CustomWebSocket; // Override the global WebSocket with the custom one
     }
